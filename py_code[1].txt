@@ -1,0 +1,65 @@
+import serial
+from guizero import App, Text , TextBox, PushButton, Slider, Picture, Combo,info  #imported the app class
+from time import sleep
+ComPort = serial.Serial('COM3') # open COM3
+ComPort.baudrate = 9600          # set Baud rate 
+ComPort.bytesize = 8             # Number of data bits = 8
+ComPort.parity = 'N'             # No parity
+ComPort.stopbits = 1             # Number of Stop bits = 1
+        
+app = App(title="IDS",width=700, height =600, layout="grid")      #name of the app is "IDS"
+welcome_message = Text(app, text="WELCOME TO ITEM DISPATCHER", size=20, font="Times New Roman", color="blue",grid=[5,2],align="left") #or you can use hex code of colour (#ff0000)
+
+
+
+item_choice= Combo(app, options=["ata","dal", "suzi", "chini","surf"], grid=[4,4], align="left") 
+count_item=Combo(app, options=[1,2,3,4,5,6,7,8,9],grid=[15,4], align="left")
+item_description= Text(app, text="Chose Item", grid=[2,4], align="left")
+count_description=Text(app, text="Count",grid=[8,4], align="left")
+#p=48
+
+#print(p)
+#print(type(p))
+
+
+def S_Com():
+            if item_choice.value == "ata":
+              j=0x01
+              ComPort.write(bytes((j,)))
+            if item_choice.value == "dal":
+              j=0x02
+              ComPort.write(bytes((j,)))
+            if item_choice.value == "suzi":
+              j=0x03
+              ComPort.write(bytes((j,)))
+            if  item_choice.value == "chini":
+              j=0x04
+              ComPort.write(bytes((j,)))
+            if item_choice.value == "surf":
+              j=0x05
+              ComPort.write(bytes((j,)))
+
+            #print(item_choice.value)
+            count=int(count_item.value)
+            count=bytes([count])
+            Read_Com=ComPort.read(size=1)
+            while Read_Com!=count:
+                    #Read_Com=ComPort.read(size=1)  #print(type(Read_Com))   #r=Read_Com.decode('utf-8')  print(type(r))
+                            Read_Com=ComPort.read(size=1)
+                            text=Text(app, text="1", size=20, font="Times New Roman", color="blue",grid=[7,7],align="left")
+                            text.value=int(text.value) + 1
+                            print(Read_Com)
+
+                    
+            ComPort.write(bytes((0x00,)))
+            info("Ordered","Your ITEM has Dispatched")
+
+            
+                   
+Run_Comport=PushButton(app, command=S_Com, text="Place Order",grid=[5,5], align="top")
+Run_Comport.bg="blue"
+#repeat(1000,check)
+app.display()               #Display the app
+
+
+
